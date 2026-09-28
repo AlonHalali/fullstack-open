@@ -17,7 +17,7 @@ const App = () => {
 
   const max = anecdotes.length
 
-  const getRandom = () => Math.floor(Math.random() * max)
+  constfirstandom = () => Math.floor(Math.random() * max)
 
   const handleSelectedClick = () => setSelected(getRandom())
   const handleVoteClick = () => {
