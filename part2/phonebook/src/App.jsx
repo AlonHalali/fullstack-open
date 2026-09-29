@@ -31,19 +31,24 @@ const PersonForm = ({
   );
 };
 
-const Person = ({ person }) => {
+const Person = ({ person, onClick }) => {
   return (
     <p>
       {person.name} {person.number}
+      <button onClick={onClick}>delete</button>
     </p>
   );
 };
 
-const Persons = ({ persons }) => {
+const Persons = ({ persons, onDeletePerson }) => {
   return (
     <>
       {persons.map((person) => (
-        <Person key={person.id} person={person} />
+        <Person
+          key={person.id}
+          person={person}
+          onClick={() => onDeletePerson(person)}
+        />
       ))}
     </>
   );
@@ -91,6 +96,24 @@ const App = () => {
     setFilter(event.target.value);
   };
 
+  const handleDeletePerson = (personToDelete) => {
+    if (window.confirm(`Delete ${personToDelete.name}?`)) {
+      personService
+        .remove(personToDelete.id)
+        .then(() => {})
+        .catch((error) => {
+          alert(
+            `Information of ${personToDelete.name} has already been removed from server`,
+          );
+        })
+        .finally(() => {
+          setPersons(
+            persons.filter((person) => person.id !== personToDelete.id),
+          );
+        });
+    }
+  };
+
   const personsToShow = newFilter
     ? persons.filter((person) =>
         person.name
@@ -116,7 +139,7 @@ const App = () => {
       />
 
       <h3>Numbers</h3>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} onDeletePerson={handleDeletePerson} />
     </div>
   );
 };
