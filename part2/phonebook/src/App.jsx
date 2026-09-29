@@ -71,16 +71,15 @@ const App = () => {
     } else if (!newNumber.trim()) {
       window.alert(`number is empty!`);
     } else {
-      setPersons(
-        persons.concat({
-          name: newName,
-          number: newNumber,
-          id: crypto.randomUUID(),
-        }),
-      );
+      const newPerson = { name: newName.trim(), number: newNumber.trim() };
 
-      setName("");
-      setNumber("");
+      axios
+        .post("http://localhost:3001/persons", newPerson)
+        .then((response) => {
+          setPersons(persons.concat(response.data));
+          setName("");
+          setNumber("");
+        });
     }
   };
 
