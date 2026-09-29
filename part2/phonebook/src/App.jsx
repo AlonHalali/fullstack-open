@@ -66,15 +66,48 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const name = newName.trim();
+    const number = newNumber.trim();
 
-    if (persons.some((person) => person.name.trim() === newName.trim())) {
-      window.alert(`${newName} is already added to phonebook!`);
-    } else if (!newName.trim()) {
+    if (!name) {
       window.alert(`name is empty!`);
-    } else if (!newNumber.trim()) {
+      return;
+    }
+    if (!number) {
       window.alert(`number is empty!`);
+      return;
+    }
+
+    const personFound = persons.find((p) => p.name.trim() === name);
+
+    if (personFound) {
+      const newPerson = { ...personFound, number: number };
+
+      if (
+        window.confirm(
+          `${newPerson.name} is already added to phonebook, replace the old number with a new one?`,
+        )
+      ) {
+        personService
+          .update(newPerson.id, newPerson)
+          .then((returnedPerson) => {
+            setPersons(
+              persons.map((p) =>
+                p.id === returnedPerson.id ? returnedPerson : p,
+              ),
+            );
+            setName("");
+            setNumber("");
+          })
+          .catch((error) => {
+            alert(
+              `Information of ${newPerson.name} has already been removed from server`,
+            );
+            setPersons(persons.filter((p) => p.id !== newPerson.id));
+          });
+      }
     } else {
-      const newPerson = { name: newName.trim(), number: newNumber.trim() };
+      const newPerson = { name: name, number: number };
 
       personService.create(newPerson).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
@@ -100,16 +133,22 @@ const App = () => {
     if (window.confirm(`Delete ${personToDelete.name}?`)) {
       personService
         .remove(personToDelete.id)
-        .then(() => {})
-        .catch((error) => {
-          alert(
-            `Information of ${personToDelete.name} has already been removed from server`,
-          );
-        })
-        .finally(() => {
+        .then(() => {
           setPersons(
             persons.filter((person) => person.id !== personToDelete.id),
           );
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 404) {
+            alert(
+              `Information of ${personToDelete.name} has already been removed from server`,
+            );
+            setPersons(
+              persons.filter((person) => person.id !== personToDelete.id),
+            );
+          } else {
+            alert(`Failed to delete ${personToDelete.name}. Server error.`);
+          }
         });
     }
   };
