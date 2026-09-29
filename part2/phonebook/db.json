@@ -24,6 +24,11 @@
       "name": "patrick",
       "number": "0598741",
       "id": "ptk8WDtC8J4"
+    },
+    {
+      "name": "23",
+      "number": "333",
+      "id": "VWQGB5x-WZI"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
