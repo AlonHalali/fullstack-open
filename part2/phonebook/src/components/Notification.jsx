@@ -1,7 +1,11 @@
-const SuccessfulNotification = ({ message }) => {
-  if (message === null) return null;
+const Notification = ({ notificationMessage }) => {
+  if (notificationMessage.message === null) return null;
+  const color = notificationMessage.isError ? `redColor` : `greenColor`;
+  console.log(color, notificationMessage.isError);
 
-  return <div className="notification greenColor">{message}</div>;
+  return (
+    <div className={`notification ${color}`}>{notificationMessage.message}</div>
+  );
 };
 
-export default SuccessfulNotification;
+export default Notification;
