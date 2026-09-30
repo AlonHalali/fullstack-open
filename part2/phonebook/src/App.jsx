@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import personService from "./services/persons";
+import SuccessfulNotification from "./components/Notification";
 
 const Filter = ({ value, onChange }) => {
   return (
@@ -59,6 +60,7 @@ const App = () => {
   const [newName, setName] = useState("");
   const [newNumber, setNumber] = useState("");
   const [newFilter, setFilter] = useState("");
+  const [successfulMessage, setSuccessfulMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => setPersons(initialPersons));
@@ -96,6 +98,15 @@ const App = () => {
                 p.id === returnedPerson.id ? returnedPerson : p,
               ),
             );
+
+            setSuccessfulMessage(
+              `${returnedPerson.name}'s number changed to ${returnedPerson.number}`,
+            );
+
+            setTimeout(() => {
+              setSuccessfulMessage(null);
+            }, 5000);
+
             setName("");
             setNumber("");
           })
@@ -111,6 +122,11 @@ const App = () => {
 
       personService.create(newPerson).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
+        setSuccessfulMessage(`Add ${returnedPerson.name}`);
+
+        setTimeout(() => {
+          setSuccessfulMessage(null);
+        }, 5000);
         setName("");
         setNumber("");
       });
@@ -165,7 +181,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-
+      <SuccessfulNotification message={successfulMessage} />
       <Filter value={newFilter} onChange={handleFilterChange} />
 
       <h3>Add a new</h3>
