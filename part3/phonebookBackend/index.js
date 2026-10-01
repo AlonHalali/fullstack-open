@@ -1,7 +1,15 @@
 const express = require("express");
+const morgan = require("morgan");
 const app = express();
 
+morgan.token("data", (request, response) => {
+  return request.method === "POST" ? JSON.stringify(request.body) : "";
+});
+
 app.use(express.json());
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :data"),
+);
 
 let persons = [
   {
@@ -65,14 +73,19 @@ app.delete("/api/persons/:id", (request, response) => {
 
 const generateId = () => {
   const max = 1000000;
-  return String(Math.floor(Math.random() * max));
+  let newId;
+  do {
+    newId = String(Math.floor(Math.random() * max));
+  } while (persons.some((p) => p.id === newId));
+
+  return newId;
 };
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
 
   if (!body.name || !body.number)
-    return response.status(400).json({ error: "missing params" });
+    return response.status(400).json({ error: "name or number missing" });
 
   if (persons.some((p) => p.name === body.name))
     return response.status(400).json({ error: "name must be unique" });
@@ -85,7 +98,7 @@ app.post("/api/persons", (request, response) => {
 
   persons = persons.concat(person);
 
-  response.status(201).json(person);
+  response.json(person);
 });
 
 const PORT = 3001;
