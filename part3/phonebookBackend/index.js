@@ -30,6 +30,18 @@ app.get("/", (request, response) => {
   response.send("<div>Hello to Persons</div>");
 });
 
+app.get("/info", (request, response) => {
+  const date = new Date();
+  const returnDiv = `
+    <div>
+      <p>Phonebook has info for ${persons.length} people</p>
+      <p>${date}</p>
+    </div>
+  `;
+
+  response.send(returnDiv);
+});
+
 app.get("/api/persons", (request, response) => {
   response.json(persons);
 });
