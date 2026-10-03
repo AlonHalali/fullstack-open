@@ -117,17 +117,28 @@ const App = () => {
             setNumber("");
           })
           .catch((error) => {
-            const messageObject = {
-              message: `Information of ${newPerson.name} has already been removed from server`,
-              isError: true,
-            };
+            if (
+              error.response &&
+              error.response.data &&
+              error.response.data.error
+            ) {
+              const messageObject = {
+                message: error.response.data.error,
+                isError: true,
+              };
+              setNotificationMessage(messageObject);
+            } else {
+              const messageObject = {
+                message: `Information of ${newPerson.name} has already been removed from server`,
+                isError: true,
+              };
 
-            setNotificationMessage(messageObject);
-
+              setNotificationMessage(messageObject);
+              setPersons(persons.filter((p) => p.id !== newPerson.id));
+            }
             setTimeout(() => {
               setNotificationMessage({ message: null, isError: false });
             }, 5000);
-            setPersons(persons.filter((p) => p.id !== newPerson.id));
           });
       }
     } else {
