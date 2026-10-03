@@ -133,23 +133,39 @@ const App = () => {
     } else {
       const newPerson = { name: name, number: number };
 
-      personService.create(newPerson).then((returnedPerson) => {
-        setPersons(persons.concat(returnedPerson));
+      personService
+        .create(newPerson)
+        .then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
 
-        const messageObject = {
-          message: `Add ${returnedPerson.name}`,
-          isError: false,
-        };
+          const messageObject = {
+            message: `Add ${returnedPerson.name}`,
+            isError: false,
+          };
 
-        setNotificationMessage(messageObject);
+          setNotificationMessage(messageObject);
 
-        setTimeout(() => {
-          setNotificationMessage({ message: null, isError: false });
-        }, 5000);
+          setTimeout(() => {
+            setNotificationMessage({ message: null, isError: false });
+          }, 5000);
 
-        setName("");
-        setNumber("");
-      });
+          setName("");
+          setNumber("");
+        })
+        .catch((error) => {
+          console.log(error.response.data.error);
+
+          const messageObject = {
+            message: error.response.data.error,
+            isError: true,
+          };
+
+          setNotificationMessage(messageObject);
+
+          setTimeout(() => {
+            setNotificationMessage({ message: null, isError: false });
+          }, 5000);
+        });
     }
   };
 
