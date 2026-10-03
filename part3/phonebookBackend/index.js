@@ -18,20 +18,24 @@ app.get("/", (request, response) => {
   response.send("<div>Hello to Persons</div>");
 });
 
-app.get("/info", (request, response) => {
+app.get("/info", (request, response, next) => {
   const date = new Date();
-  Person.find({}).then((persons) => {
-    response.send(`<div>
+  Person.find({})
+    .then((persons) => {
+      response.send(`<div>
       <p>Phonebook has info for ${persons.length} people</p>
       <p>${date}</p>
     </div>`);
-  });
+    })
+    .catch((error) => next(error));
 });
 
-app.get("/api/persons", (request, response) => {
-  Person.find({}).then((persons) => {
-    response.json(persons);
-  });
+app.get("/api/persons", (request, response, next) => {
+  Person.find({})
+    .then((persons) => {
+      response.json(persons);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/api/persons/:id", (request, response, next) => {
