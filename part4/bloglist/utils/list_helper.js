@@ -30,4 +30,19 @@ const mostBlogs = (blogs) => {
   return { author: topAuthor, blogs: maxBlogs }
 }
 
-module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs }
+const mostLikes = (blogs) => {
+  if (blogs.length === 0) return null
+
+  let authorsMap = {}
+  blogs.forEach((blog) => {
+    authorsMap[blog.author] = (authorsMap[blog.author] || 0) + blog.likes
+  })
+
+  const [topAuthor, maxLikes] = Object.entries(authorsMap).reduce(
+    (max, author) => (author[1] > max[1] ? author : max),
+  )
+
+  return { author: topAuthor, likes: maxLikes }
+}
+
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes }
