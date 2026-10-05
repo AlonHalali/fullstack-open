@@ -117,6 +117,26 @@ describe('when there is initially some blogs saved', () => {
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
     })
   })
+
+  describe('update blog', () => {
+    test('succeeds if id is valid', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
+      const updatedBlog = { ...blogToUpdate, title: 'i love updates!' }
+
+      await api
+        .put(`/api/blogs/${updatedBlog.id}`)
+        .send(updatedBlog)
+        .expect(200)
+
+      const blogsAtEnd = await helper.blogsInDb()
+
+      const titles = blogsAtEnd.map((blog) => blog.title)
+      assert(titles.includes('i love updates!'))
+
+      assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+    })
+  })
 })
 after(async () => {
   await mongoose.connection.close()
