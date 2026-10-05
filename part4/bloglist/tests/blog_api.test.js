@@ -68,6 +68,32 @@ test('a valid blog with default likes 0', async () => {
   assert.strictEqual(response.body.likes, 0)
 })
 
+test('invalid blog does not saved without title', async () => {
+  const newBlog = {
+    author: 'titleHater123',
+    url: 'http://titleWdym/titelsHates.html',
+    likes: 81,
+  }
+
+  await api.post('/api/blogs').send(newBlog).expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+})
+
+test('invalid blog does not saved without url', async () => {
+  const newBlog = {
+    title: 'url is for nerds',
+    author: 'urlHater',
+    likes: 1,
+  }
+
+  await api.post('/api/blogs').send(newBlog).expect(400)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
