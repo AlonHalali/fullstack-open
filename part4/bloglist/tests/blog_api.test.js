@@ -22,6 +22,18 @@ test('blogs are returned as json', async () => {
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
+test("blogs' id are returned as id", async () => {
+  const response = await api
+    .get('/api/blogs')
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const firstBlog = response.body[0]
+
+  assert.ok(firstBlog.id)
+  assert.strictEqual(firstBlog._id, undefined)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
