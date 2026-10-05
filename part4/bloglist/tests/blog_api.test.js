@@ -34,6 +34,26 @@ test("blogs' id are returned as id", async () => {
   assert.strictEqual(firstBlog._id, undefined)
 })
 
+test('a valid blog can be added', async () => {
+  const newBlog = {
+    title: 'New Blog can be added?',
+    author: 'Gemini. Chatgpt?',
+    url: 'http://gemini-gpt/chatGoogle.html',
+    likes: 621,
+  }
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const getResponse = await api.get('/api/blogs')
+  assert.strictEqual(getResponse.body.length, helper.initialBlogs.length + 1)
+
+  const titles = getResponse.body.map((bl) => bl.title)
+  assert(titles.includes(newBlog.title))
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
