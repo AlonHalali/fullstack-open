@@ -14,4 +14,12 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
+blogsRouter.get('/:id', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+
+  if (!blog) return response.status(404).end()
+
+  response.json(blog)
+})
+
 module.exports = blogsRouter

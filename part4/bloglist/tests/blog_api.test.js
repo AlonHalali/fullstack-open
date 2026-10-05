@@ -54,6 +54,20 @@ test('a valid blog can be added', async () => {
   assert(titles.includes(newBlog.title))
 })
 
+test('a valid blog with default likes 0', async () => {
+  const newBlog = {
+    title: 'New Blog can be default?',
+    author: 'bo mi',
+    url: 'http://bo-mi/chatGoogle.html',
+  }
+
+  const savedBlog = await api.post('/api/blogs').send(newBlog)
+
+  const response = await api.get(`/api/blogs/${savedBlog.body.id}`)
+
+  assert.strictEqual(response.body.likes, 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
