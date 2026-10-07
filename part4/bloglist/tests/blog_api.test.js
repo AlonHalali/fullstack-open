@@ -3,15 +3,43 @@ const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const Blog = require('../models/blog')
-const helper = require('./test_helper.js')
+const User = require('../models/user')
+const helper = require('./test_helper')
 const app = require('../app')
+const jwt = require('jsonwebtoken')
+const config = require('../utils/config')
+const bcrypt = require('bcrypt')
 
 const api = supertest(app)
+
+let token = null
 
 describe('when there is initially some blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
-    await Blog.insertMany(helper.initialBlogs)
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('whatAPass', 10)
+    const newUser = new User({
+      username: 'userTest',
+      name: 'iHateTests',
+      passwordHash,
+    })
+
+    const savedUser = await newUser.save()
+
+    const userForToken = {
+      username: savedUser.username,
+      id: savedUser._id,
+    }
+
+    token = jwt.sign(userForToken, config.SECRET)
+
+    const blogWithUser = helper.initialBlogs.map((b) => ({
+      ...b,
+      user: savedUser._id,
+    }))
+    await Blog.insertMany(blogWithUser)
   })
 
   test('blogs are returned as json', async () => {
@@ -43,7 +71,10 @@ describe('when there is initially some blogs saved', () => {
         url: 'http://bo-mi/chatGoogle.html',
       }
 
-      const savedBlog = await api.post('/api/blogs').send(newBlog)
+      const savedBlog = await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
 
       const response = await api.get(`/api/blogs/${savedBlog.body.id}`)
 
@@ -57,7 +88,11 @@ describe('when there is initially some blogs saved', () => {
         likes: 81,
       }
 
-      await api.post('/api/blogs').send(newBlog).expect(400)
+      await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+        .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
@@ -70,7 +105,11 @@ describe('when there is initially some blogs saved', () => {
         likes: 1,
       }
 
-      await api.post('/api/blogs').send(newBlog).expect(400)
+      await api
+        .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newBlog)
+        .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
@@ -87,6 +126,7 @@ describe('when there is initially some blogs saved', () => {
       }
       await api
         .post('/api/blogs')
+        .set('Authorization', `Bearer ${token}`)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/)
@@ -100,6 +140,22 @@ describe('when there is initially some blogs saved', () => {
       const titles = getResponse.body.map((bl) => bl.title)
       assert(titles.includes(newBlog.title))
     })
+
+    test('fails with status code 401 if token is not provided', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+
+      const newBlog = {
+        title: 'New Blog without user can be added?',
+        author: 'Gemini. Chatgpt?',
+        url: 'http://gemini-gpt/chatGoogle.html',
+        likes: 621,
+      }
+
+      await api.post('/api/blogs').send(newBlog).expect(401)
+
+      const blogsAtEnd = await helper.blogsInDb()
+      assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+    })
   })
 
   describe('delete blog', () => {
@@ -107,7 +163,10 @@ describe('when there is initially some blogs saved', () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToDelete = blogsAtStart[0]
 
-      await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
 
