@@ -1,27 +1,16 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const jwt = require('jsonwebtoken')
-const User = require('../models/user')
-const config = require('../utils/config')
+const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { blogs: 0 })
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const body = request.body
 
-  const token = request.token
-  if (!token) return response.status(401).json({ error: 'token missing' })
-
-  const decodedToken = jwt.verify(token, config.SECRET)
-  if (!decodedToken.id)
-    return response.status(401).json({ error: 'token invalid' })
-
-  const user = await User.findById(decodedToken.id)
-  if (!user)
-    return response.status(400).json({ error: 'userId missing or not valid' })
+  const user = request.user
   body['user'] = user._id
 
   const blog = new Blog(body)
@@ -42,33 +31,28 @@ blogsRouter.get('/:id', async (request, response) => {
   response.json(blog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  const token = request.token
-  if (!token) return response.status(401).json({ error: 'token missing' })
+blogsRouter.delete(
+  '/:id',
+  middleware.userExtractor,
+  async (request, response) => {
+    const user = request.user
 
-  const decodedToken = jwt.verify(token, config.SECRET)
-  if (!decodedToken)
-    return response.status(401).json({ error: 'token invalid' })
+    const blogToDelete = await Blog.findById(request.params.id)
+    if (!blogToDelete)
+      return response.status(404).json({ error: 'blog not found!' })
 
-  const user = await User.findById(decodedToken.id)
-  if (!user)
-    return response.status(401).json({ error: 'userId missing or not valid' })
+    if (
+      !blogToDelete.user ||
+      blogToDelete.user.toString() !== user._id.toString()
+    )
+      return response
+        .status(403)
+        .json({ error: 'The user is not the blog owner' })
 
-  const blogToDelete = await Blog.findById(request.params.id)
-  if (!blogToDelete)
-    return response.status(404).json({ error: 'blog not found!' })
-
-  if (
-    !blogToDelete.user ||
-    blogToDelete.user.toString() !== user._id.toString()
-  )
-    return response
-      .status(403)
-      .json({ error: 'The user is not the blog owner' })
-
-  await Blog.findByIdAndDelete(request.params.id)
-  response.status(204).end()
-})
+    await Blog.findByIdAndDelete(request.params.id)
+    response.status(204).end()
+  },
+)
 
 blogsRouter.put('/:id', async (request, response) => {
   const { title, author, url, likes } = request.body
