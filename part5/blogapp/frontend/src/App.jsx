@@ -14,8 +14,13 @@ const App = () => {
 
   const blogFormRef = useRef()
 
+  const sortAndSetBlogs = (blogs) => {
+    const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
+    setBlogs(sortedBlogs)
+  }
+
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
+    blogService.getAll().then((blogs) => sortAndSetBlogs(blogs))
   }, [])
 
   useEffect(() => {
@@ -59,7 +64,7 @@ const App = () => {
   const handleAddBlog = async (newBlog) => {
     try {
       const savedBlog = await blogService.create(newBlog)
-      setBlogs(blogs.concat(savedBlog))
+      sortAndSetBlogs(blogs.concat(savedBlog))
       notifyWith(`a new blog ${savedBlog.title} by ${savedBlog.author} added`)
       blogFormRef.current.toggleVisibility()
       return true
@@ -72,7 +77,9 @@ const App = () => {
   const handleUpdateBlog = async (blogToUpdate) => {
     try {
       const updatedBlog = await blogService.update(blogToUpdate)
-      setBlogs(blogs.map((b) => (b.id === updatedBlog.id ? updatedBlog : b)))
+      sortAndSetBlogs(
+        blogs.map((b) => (b.id === updatedBlog.id ? updatedBlog : b)),
+      )
       notifyWith(`blog ${updatedBlog.title} updated`)
     } catch {
       notifyWith('failed to update blog', true)
