@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 
 import Blogs from './components/Blogs'
 import LoginForm from './components/LoginForm'
+import Notification from './components/Notification'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -9,6 +10,7 @@ import loginService from './services/login'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
+  const [notification, setNotification] = useState({ message: null })
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -23,6 +25,13 @@ const App = () => {
     }
   }, [])
 
+  const notifyWith = (message, isError = false) => {
+    setNotification({ message, isError })
+    setTimeout(() => {
+      setNotification({ message: null })
+    }, 5000)
+  }
+
   const handleLogin = async (credentials) => {
     try {
       const user = await loginService.login(credentials)
@@ -31,7 +40,7 @@ const App = () => {
       setUser(user)
       return true
     } catch {
-      console.error('wrong credentials')
+      notifyWith('wrong username or password', true)
       return false
     }
   }
@@ -41,21 +50,26 @@ const App = () => {
 
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
+
+    notifyWith(`Logout successful!`)
   }
 
   const handleAddBlog = async (newBlog) => {
     try {
       const savedBlog = await blogService.create(newBlog)
       setBlogs(blogs.concat(savedBlog))
+      notifyWith(`a new blog ${savedBlog.title} by ${savedBlog.author} added`)
       return true
-    } catch (exception) {
-      console.error('failed to create blog', exception)
+    } catch {
+      notifyWith('failed to create blog', true)
       return false
     }
   }
 
   return (
     <>
+      {user ? <h1>Blogs</h1> : <h1>Login</h1>}
+      <Notification notification={notification} />
       {user ? (
         <Blogs
           blogs={blogs}
