@@ -8,8 +8,6 @@ import loginService from './services/login'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
   useEffect(() => {
@@ -25,18 +23,16 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-
+  const handleLogin = async (credentials) => {
     try {
-      const user = await loginService.login({ username, password })
+      const user = await loginService.login(credentials)
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
-      setUsername('')
-      setPassword('')
+      return true
     } catch {
       console.error('wrong credentials')
+      return false
     }
   }
 
@@ -47,18 +43,28 @@ const App = () => {
     setUser(null)
   }
 
+  const handleAddBlog = async (newBlog) => {
+    try {
+      const savedBlog = await blogService.create(newBlog)
+      setBlogs(blogs.concat(savedBlog))
+      return true
+    } catch (exception) {
+      console.error('failed to create blog', exception)
+      return false
+    }
+  }
+
   return (
     <>
       {user ? (
-        <Blogs blogs={blogs} userName={user.name} handleLogout={handleLogout} />
-      ) : (
-        <LoginForm
-          handleSubmit={handleLogin}
-          username={username}
-          setUsername={setUsername}
-          password={password}
-          setPassword={setPassword}
+        <Blogs
+          blogs={blogs}
+          userName={user.name}
+          handleLogout={handleLogout}
+          handleAddBlog={handleAddBlog}
         />
+      ) : (
+        <LoginForm handleLogin={handleLogin} />
       )}
     </>
   )
