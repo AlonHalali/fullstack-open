@@ -86,7 +86,21 @@ const App = () => {
     }
   }
 
-  const handleDeleteBlog = async (blogToDelete) => {}
+  const handleDeleteBlog = async (blogToDelete) => {
+    if (
+      window.confirm(
+        `Remove blog ${blogToDelete.title} by ${blogToDelete.author}`,
+      )
+    ) {
+      try {
+        await blogService.remove(blogToDelete)
+        sortAndSetBlogs(blogs.filter((b) => b.id !== blogToDelete.id))
+        notifyWith(`blog ${blogToDelete.title} removed`)
+      } catch {
+        notifyWith('Failed to remove blog', true)
+      }
+    }
+  }
 
   return (
     <>
@@ -95,13 +109,13 @@ const App = () => {
       {user ? (
         <Blogs
           blogs={blogs}
-          userName={user.name}
+          name={user.name}
           handleLogout={handleLogout}
           handleAddBlog={handleAddBlog}
           blogFormRef={blogFormRef}
           handleUpdateBlog={handleUpdateBlog}
-          userId={user.id}
           handleDeleteBlog={handleDeleteBlog}
+          username={user.username}
         />
       ) : (
         <LoginForm handleLogin={handleLogin} />
