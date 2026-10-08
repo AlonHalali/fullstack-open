@@ -86,6 +86,8 @@ const App = () => {
     }
   }
 
+  const handleDeleteBlog = async (blogToDelete) => {}
+
   return (
     <>
       {user ? <h1>Blogs</h1> : <h1>Login</h1>}
@@ -98,6 +100,8 @@ const App = () => {
           handleAddBlog={handleAddBlog}
           blogFormRef={blogFormRef}
           handleUpdateBlog={handleUpdateBlog}
+          userId={user.id}
+          handleDeleteBlog={handleDeleteBlog}
         />
       ) : (
         <LoginForm handleLogin={handleLogin} />

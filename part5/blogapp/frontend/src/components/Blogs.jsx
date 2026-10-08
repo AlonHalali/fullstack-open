@@ -9,6 +9,8 @@ const Blogs = ({
   handleAddBlog,
   blogFormRef,
   handleUpdateBlog,
+  userId,
+  handleDeleteBlog,
 }) => (
   <div>
     {userName && (
@@ -24,7 +26,13 @@ const Blogs = ({
     <br />
     <div>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} handleUpdateBlog={handleUpdateBlog} />
+        <Blog
+          key={blog.id}
+          blog={blog}
+          handleUpdateBlog={handleUpdateBlog}
+          userId={userId}
+          handleDeleteBlog={handleDeleteBlog}
+        />
       ))}
     </div>
   </div>
