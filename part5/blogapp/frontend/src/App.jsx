@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import Blogs from './components/Blogs'
 import LoginForm from './components/LoginForm'
@@ -11,6 +11,8 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({ message: null })
+
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs))
@@ -59,6 +61,7 @@ const App = () => {
       const savedBlog = await blogService.create(newBlog)
       setBlogs(blogs.concat(savedBlog))
       notifyWith(`a new blog ${savedBlog.title} by ${savedBlog.author} added`)
+      blogFormRef.current.toggleVisibility()
       return true
     } catch {
       notifyWith('failed to create blog', true)
@@ -76,6 +79,7 @@ const App = () => {
           userName={user.name}
           handleLogout={handleLogout}
           handleAddBlog={handleAddBlog}
+          blogFormRef={blogFormRef}
         />
       ) : (
         <LoginForm handleLogin={handleLogin} />

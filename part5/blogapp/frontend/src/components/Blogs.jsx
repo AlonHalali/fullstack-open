@@ -1,7 +1,14 @@
 import Blog from './Blog'
 import BlogForm from './BlogForm'
+import Toggleable from './Togglable'
 
-const Blogs = ({ blogs, userName, handleLogout, handleAddBlog }) => (
+const Blogs = ({
+  blogs,
+  userName,
+  handleLogout,
+  handleAddBlog,
+  blogFormRef,
+}) => (
   <div>
     {userName && (
       <div>
@@ -9,7 +16,10 @@ const Blogs = ({ blogs, userName, handleLogout, handleAddBlog }) => (
       </div>
     )}
     <br />
-    <BlogForm handleAddBlog={handleAddBlog} />
+    <Toggleable buttonLabel={'create new blog'} ref={blogFormRef}>
+      <BlogForm handleAddBlog={handleAddBlog} />
+    </Toggleable>
+
     <br />
     <div>
       {blogs.map((blog) => (
