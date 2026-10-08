@@ -9,6 +9,7 @@ const BlogForm = ({ handleAddBlog }) => {
     event.preventDefault()
 
     const success = await handleAddBlog({ title, author, url })
+
     if (success) {
       setTitle('')
       setAuthor('')
