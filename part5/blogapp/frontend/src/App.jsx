@@ -69,6 +69,16 @@ const App = () => {
     }
   }
 
+  const handleUpdateBlog = async (blogToUpdate) => {
+    try {
+      const updatedBlog = await blogService.update(blogToUpdate)
+      setBlogs(blogs.map((b) => (b.id === updatedBlog.id ? updatedBlog : b)))
+      notifyWith(`blog ${updatedBlog.title} updated`)
+    } catch {
+      notifyWith('failed to update blog', true)
+    }
+  }
+
   return (
     <>
       {user ? <h1>Blogs</h1> : <h1>Login</h1>}
@@ -80,6 +90,7 @@ const App = () => {
           handleLogout={handleLogout}
           handleAddBlog={handleAddBlog}
           blogFormRef={blogFormRef}
+          handleUpdateBlog={handleUpdateBlog}
         />
       ) : (
         <LoginForm handleLogin={handleLogin} />
