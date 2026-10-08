@@ -4,7 +4,6 @@ const Blog = ({ blog, handleUpdateBlog }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const showWhenVisible = { display: showDetails ? '' : 'none' }
-
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
