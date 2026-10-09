@@ -58,7 +58,7 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
 
-    notifyWith(`Logout successful!`)
+    notifyWith('Logout successful!')
   }
 
   const handleAddBlog = async (newBlog) => {
