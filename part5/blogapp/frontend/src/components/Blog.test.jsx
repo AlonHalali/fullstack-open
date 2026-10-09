@@ -14,13 +14,18 @@ describe('<Blog />', () => {
     },
   }
 
+  let mockUpdateBlog
+  let mockDeleteBlog
+
   beforeEach(() => {
+    mockUpdateBlog = vi.fn()
+    mockDeleteBlog = vi.fn()
     render(
       <Blog
         blog={initialBlog}
-        handleUpdateBlog={() => {}}
+        handleUpdateBlog={mockUpdateBlog}
         username={initialBlog.user.username}
-        handleDeleteBlog={() => {}}
+        handleDeleteBlog={mockDeleteBlog}
       />,
     )
   })
@@ -47,5 +52,18 @@ describe('<Blog />', () => {
 
     expect(urlElement).toBeVisible()
     expect(likesElement).toBeVisible()
+  })
+
+  test('double click at like button', async () => {
+    const user = userEvent.setup()
+
+    const viewButton = screen.getByRole('button', { name: 'view' })
+    await user.click(viewButton)
+
+    const likeButton = screen.getByRole('button', { name: 'like' })
+    await user.click(likeButton)
+    await user.click(likeButton)
+
+    expect(mockUpdateBlog.mock.calls).toHaveLength(2)
   })
 })
