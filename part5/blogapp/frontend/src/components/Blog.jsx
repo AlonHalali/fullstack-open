@@ -27,7 +27,7 @@ const Blog = ({ blog, handleUpdateBlog, username, handleDeleteBlog }) => {
       <div style={showWhenVisible}>
         <p>{blog.url}</p>
         <p>
-          {blog.likes}{' '}
+          <span className="likes-count">{blog.likes} </span>
           <button
             onClick={() => handleUpdateBlog({ ...blog, likes: blog.likes + 1 })}
           >
@@ -41,5 +41,30 @@ const Blog = ({ blog, handleUpdateBlog, username, handleDeleteBlog }) => {
     </div>
   )
 }
+
+/*
+<div style={blogStyle}>
+      <div>
+        {blog.title} {blog.author}
+        <button onClick={toggleVisibility}>
+          {showDetails ? 'hide' : 'view'}
+        </button>
+      </div>
+      <div style={showWhenVisible}>
+        <p>{blog.url}</p>
+        <p>
+          {blog.likes}{' '}
+          <button
+            onClick={() => handleUpdateBlog({ ...blog, likes: blog.likes + 1 })}
+          >
+            like
+          </button>
+        </p>
+        {blog.user.username === username && (
+          <button onClick={() => handleDeleteBlog(blog)}>remove</button>
+        )}
+      </div>
+    </div>
+    */
 
 export default Blog

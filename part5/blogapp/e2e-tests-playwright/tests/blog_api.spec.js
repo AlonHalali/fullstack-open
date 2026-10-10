@@ -53,5 +53,29 @@ describe('Blog app', () => {
       await expect(notification).toHaveCSS('border-style', 'solid')
       await expect(notification).toHaveCSS('color', 'rgb(0, 128, 0)')
     })
+
+    describe('several blogs exists', () => {
+      beforeEach(async ({ page }) => {
+        await createBlog(page, 'blog1', 'halali', 'url.com')
+        await createBlog(page, 'blog2', 'bloger', 'http.com')
+        await createBlog(page, 'blog3', 'cyker', 'web.com')
+      })
+
+      test.only('add like to a blog', async ({ page }) => {
+        const firstBlogTitle = page.getByText('blog1 halali')
+
+        await firstBlogTitle.getByRole('button', { name: 'view' }).click()
+
+        const blog = firstBlogTitle.locator('..')
+
+        const likes = blog.locator('.likes-count')
+        const likesBefore = Number(await likes.innerText())
+
+        await blog.getByRole('button', { name: 'like' }).click()
+        await page.getByText(`blog blog1 updated`).waitFor()
+
+        await expect(likes).toHaveText(String(likesBefore + 1))
+      })
+    })
   })
 })
