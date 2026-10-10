@@ -1,15 +1,26 @@
 const { test, describe, expect, beforeEach } = require('@playwright/test')
 const { loginWith, createBlog } = require('./helper')
 
+const blogsOwnerUser = {
+  name: 'Alon Halali',
+  username: 'cyker',
+  password: 'cyker@2008',
+}
+
+const secondUser = {
+  name: 'bob',
+  username: 'babyBob',
+  password: 'bobMax',
+}
+
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
     await request.post('/api/testing')
     await request.post('/api/users', {
-      data: {
-        name: 'Alon Halali',
-        username: 'cyker',
-        password: 'cyker@2008',
-      },
+      data: blogsOwnerUser,
+    })
+    await request.post('/api/users', {
+      data: secondUser,
     })
     await page.goto('/')
   })
@@ -23,13 +34,15 @@ describe('Blog app', () => {
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-      await loginWith(page, 'cyker', 'cyker@2008')
+      await loginWith(page, blogsOwnerUser.username, blogsOwnerUser.password)
       await expect(page.getByRole('heading', { name: 'Blogs' })).toBeVisible()
-      await expect(page.getByText('Alon Halali logged in')).toBeVisible()
+      await expect(
+        page.getByText(`${blogsOwnerUser.name} logged in`),
+      ).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-      await loginWith(page, 'cyker', 'wrongPassword')
+      await loginWith(page, blogsOwnerUser.username, 'wrong')
       await expect(
         page.getByRole('heading', { name: 'Blogs' }),
       ).not.toBeVisible()
@@ -40,7 +53,10 @@ describe('Blog app', () => {
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
-      await loginWith(page, 'cyker', 'cyker@2008')
+      await loginWith(page, blogsOwnerUser.username, blogsOwnerUser.password)
+      await expect(
+        page.getByText(`${blogsOwnerUser.name} logged in`),
+      ).toBeVisible()
     })
 
     test('a new blog can be created', async ({ page }) => {
@@ -54,7 +70,7 @@ describe('Blog app', () => {
       await expect(notification).toHaveCSS('color', 'rgb(0, 128, 0)')
     })
 
-    describe('several blogs exists', () => {
+    describe('Several blogs exist', () => {
       beforeEach(async ({ page }) => {
         await createBlog(page, 'blog1', 'halali', 'url.com')
         await createBlog(page, 'blog2', 'bloger', 'http.com')
@@ -90,9 +106,30 @@ describe('Blog app', () => {
         await removeButton.click()
 
         await expect(page.getByText('blog blog1 removed')).toBeVisible()
-
-        await expect(page.getByText('blog1 halali')).toHaveCount(0)
         await expect(blog).toHaveCount(0)
+      })
+
+      describe('When logged in as a non-owner', () => {
+        beforeEach(async ({ page }) => {
+          await page.getByRole('button', { name: 'logout' }).click()
+          await expect(
+            page.getByRole('heading', { name: 'Login' }),
+          ).toBeVisible()
+          await loginWith(page, secondUser.username, secondUser.password)
+          await expect(
+            page.getByText(`${secondUser.name} logged in`),
+          ).toBeVisible()
+        })
+
+        test('non-owner cannot see the remove button', async ({ page }) => {
+          const firstBlogTitle = page.getByText('blog1 halali')
+          await firstBlogTitle.getByRole('button', { name: 'view' }).click()
+          const blog = firstBlogTitle.locator('..')
+
+          await expect(
+            blog.getByRole('button', { name: 'remove' }),
+          ).toHaveCount(0)
+        })
       })
     })
   })
