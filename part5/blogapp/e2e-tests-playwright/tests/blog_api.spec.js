@@ -61,7 +61,7 @@ describe('Blog app', () => {
         await createBlog(page, 'blog3', 'cyker', 'web.com')
       })
 
-      test.only('add like to a blog', async ({ page }) => {
+      test('add like to a blog', async ({ page }) => {
         const firstBlogTitle = page.getByText('blog1 halali')
 
         await firstBlogTitle.getByRole('button', { name: 'view' }).click()
@@ -72,9 +72,27 @@ describe('Blog app', () => {
         const likesBefore = Number(await likes.innerText())
 
         await blog.getByRole('button', { name: 'like' }).click()
-        await page.getByText(`blog blog1 updated`).waitFor()
+        await expect(page.getByText(`blog blog1 updated`)).toBeVisible()
 
         await expect(likes).toHaveText(String(likesBefore + 1))
+      })
+
+      test('remove blog', async ({ page }) => {
+        page.on('dialog', (dialog) => dialog.accept())
+
+        const firstBlogTitle = page.getByText('blog1 halali')
+        await firstBlogTitle.getByRole('button', { name: 'view' }).click()
+        const blog = firstBlogTitle.locator('..')
+
+        const removeButton = blog.getByRole('button', { name: 'remove' })
+        await expect(removeButton).toBeVisible()
+
+        await removeButton.click()
+
+        await expect(page.getByText('blog blog1 removed')).toBeVisible()
+
+        await expect(page.getByText('blog1 halali')).toHaveCount(0)
+        await expect(blog).toHaveCount(0)
       })
     })
   })
