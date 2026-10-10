@@ -77,6 +77,15 @@ describe('Blog app', () => {
         await createBlog(page, 'blog3', 'cyker', 'web.com')
       })
 
+      const addLike = async (page, blog, title) => {
+        await blog.getByRole('button', { name: 'like' }).click()
+        await expect(page.getByText(`blog ${title} updated`)).toBeVisible()
+      }
+
+      const getLikesNumber = async (blog) => {
+        return Number(await blog.locator('.likes-count').innerText())
+      }
+
       test('add like to a blog', async ({ page }) => {
         const firstBlogTitle = page.getByText('blog1 halali')
 
@@ -84,13 +93,13 @@ describe('Blog app', () => {
 
         const blog = firstBlogTitle.locator('..')
 
-        const likes = blog.locator('.likes-count')
-        const likesBefore = Number(await likes.innerText())
+        const likesBefore = await getLikesNumber(blog)
 
-        await blog.getByRole('button', { name: 'like' }).click()
-        await expect(page.getByText(`blog blog1 updated`)).toBeVisible()
+        await addLike(page, blog, 'blog1')
 
-        await expect(likes).toHaveText(String(likesBefore + 1))
+        const likesAfter = await getLikesNumber(blog)
+
+        await expect(likesAfter).toBe(likesBefore + 1)
       })
 
       test('remove blog', async ({ page }) => {
@@ -130,6 +139,35 @@ describe('Blog app', () => {
             blog.getByRole('button', { name: 'remove' }),
           ).toHaveCount(0)
         })
+      })
+
+      test('blogs are arranged in order according to likes', async ({
+        page,
+      }) => {
+        const blog1 = page.getByText('blog1 halali').locator('..')
+        await blog1.getByRole('button', { name: 'view' }).click()
+        const blog2 = page.getByText('blog2 bloger').locator('..')
+        await blog2.getByRole('button', { name: 'view' }).click()
+        const blog3 = page.getByText('blog3 cyker').locator('..')
+        await blog3.getByRole('button', { name: 'view' }).click()
+
+        await addLike(page, blog2, 'blog2')
+        await addLike(page, blog3, 'blog3')
+        await addLike(page, blog2, 'blog2')
+        await addLike(page, blog3, 'blog3')
+        await addLike(page, blog2, 'blog2')
+
+        const blogsLocator = page
+          .getByRole('button', { name: 'hide' })
+          .locator('..')
+
+        console.log(await blogsLocator.allInnerTexts())
+
+        await expect(blogsLocator).toHaveText([
+          'blog2 blogerhide',
+          'blog3 cykerhide',
+          'blog1 halalihide',
+        ])
       })
     })
   })
