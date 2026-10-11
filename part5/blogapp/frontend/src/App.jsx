@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom'
 
 import Blogs from './components/Blogs'
 import LoginForm from './components/LoginForm'
 import Notification from './components/Notification'
 import Blog from './components/Blog'
+import BlogForm from './components/BlogForm'
 
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -13,8 +14,6 @@ const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [notification, setNotification] = useState({ message: null })
-
-  const blogFormRef = useRef()
 
   const navigate = useNavigate()
   const match = useMatch('/blogs/:id')
@@ -73,7 +72,7 @@ const App = () => {
       const savedBlog = await blogService.create(newBlog)
       sortAndSetBlogs(blogs.concat(savedBlog))
       notifyWith(`a new blog ${savedBlog.title} by ${savedBlog.author} added`)
-      blogFormRef.current.toggleVisibility()
+      navigate('/')
       return true
     } catch {
       notifyWith('failed to create blog', true)
@@ -103,6 +102,7 @@ const App = () => {
         await blogService.remove(blogToDelete)
         sortAndSetBlogs(blogs.filter((b) => b.id !== blogToDelete.id))
         notifyWith(`blog ${blogToDelete.title} removed`)
+        navigate('/')
       } catch {
         notifyWith('Failed to remove blog', true)
       }
@@ -119,6 +119,11 @@ const App = () => {
         <Link style={padding} to="/">
           blogs
         </Link>
+        {user && (
+          <Link style={padding} to="/create">
+            new blog
+          </Link>
+        )}
         {user ? (
           <button onClick={handleLogout}>logout</button>
         ) : (
@@ -138,7 +143,6 @@ const App = () => {
               blogs={blogs}
               name={user ? user.name : null}
               handleAddBlog={handleAddBlog}
-              blogFormRef={blogFormRef}
             />
           }
         />
@@ -158,6 +162,11 @@ const App = () => {
               handleDeleteBlog={handleDeleteBlog}
             />
           }
+        />
+
+        <Route
+          path="/create"
+          element={<BlogForm handleAddBlog={handleAddBlog} />}
         />
       </Routes>
     </div>
