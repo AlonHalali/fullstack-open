@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 
 import Blogs from './components/Blogs'
 import LoginForm from './components/LoginForm'
@@ -13,6 +14,7 @@ const App = () => {
   const [notification, setNotification] = useState({ message: null })
 
   const blogFormRef = useRef()
+  const navigate = useNavigate()
 
   const sortAndSetBlogs = (blogs) => {
     const sortedBlogs = blogs.sort((a, b) => b.likes - a.likes)
@@ -29,6 +31,7 @@ const App = () => {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
       blogService.setToken(user.token)
+      navigate('/')
     }
   }, [])
 
@@ -45,6 +48,7 @@ const App = () => {
       window.localStorage.setItem('loggedBlogappUser', JSON.stringify(user))
       blogService.setToken(user.token)
       setUser(user)
+      navigate('/')
       return true
     } catch {
       notifyWith('wrong username or password', true)
@@ -57,7 +61,7 @@ const App = () => {
 
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
-
+    navigate('/')
     notifyWith('Logout successful!')
   }
 
@@ -102,25 +106,49 @@ const App = () => {
     }
   }
 
+  const padding = {
+    padding: 5,
+  }
+
   return (
-    <>
-      {user ? <h1>Blogs</h1> : <h1>Login</h1>}
+    <div>
+      <div>
+        <Link style={padding} to="/">
+          blogs
+        </Link>
+        {user ? (
+          <button onClick={handleLogout}>logout</button>
+        ) : (
+          <Link style={padding} to="/login">
+            login
+          </Link>
+        )}
+      </div>
+
       <Notification notification={notification} />
-      {user ? (
-        <Blogs
-          blogs={blogs}
-          name={user.name}
-          handleLogout={handleLogout}
-          handleAddBlog={handleAddBlog}
-          blogFormRef={blogFormRef}
-          handleUpdateBlog={handleUpdateBlog}
-          handleDeleteBlog={handleDeleteBlog}
-          username={user.username}
+
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Blogs
+              blogs={blogs}
+              name={user ? user.name : null}
+              handleAddBlog={handleAddBlog}
+              blogFormRef={blogFormRef}
+              handleUpdateBlog={handleUpdateBlog}
+              handleDeleteBlog={handleDeleteBlog}
+              username={user ? user.username : null}
+            />
+          }
         />
-      ) : (
-        <LoginForm handleLogin={handleLogin} />
-      )}
-    </>
+
+        <Route
+          path="/login"
+          element={<LoginForm handleLogin={handleLogin} />}
+        />
+      </Routes>
+    </div>
   )
 }
 

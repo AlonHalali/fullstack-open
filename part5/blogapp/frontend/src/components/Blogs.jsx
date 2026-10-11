@@ -5,7 +5,6 @@ import Toggleable from './Togglable'
 const Blogs = ({
   blogs,
   name,
-  handleLogout,
   handleAddBlog,
   blogFormRef,
   handleUpdateBlog,
@@ -13,12 +12,16 @@ const Blogs = ({
   handleDeleteBlog,
 }) => (
   <div>
-    {name && <div>{name} logged in</div>}
-    <button onClick={handleLogout}>logout</button>
-    <br />
-    <Toggleable buttonLabel={'create new blog'} ref={blogFormRef}>
-      <BlogForm handleAddBlog={handleAddBlog} />
-    </Toggleable>
+    <h1>Blogs</h1>
+    {name && (
+      <>
+        <div>{name} logged in</div>
+        <br />
+        <Toggleable buttonLabel={'create new blog'} ref={blogFormRef}>
+          <BlogForm handleAddBlog={handleAddBlog} />
+        </Toggleable>{' '}
+      </>
+    )}
 
     <br />
     <div>
