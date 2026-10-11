@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, Link, useNavigate, useMatch } from 'react-router-dom'
+import { Container } from '@mui/material'
 
 import Blogs from './components/Blogs'
 import LoginForm from './components/LoginForm'
@@ -114,7 +115,7 @@ const App = () => {
   }
 
   return (
-    <div>
+    <Container>
       <div>
         <Link style={padding} to="/">
           blogs
@@ -169,7 +170,7 @@ const App = () => {
           element={<BlogForm handleAddBlog={handleAddBlog} />}
         />
       </Routes>
-    </div>
+    </Container>
   )
 }
 
