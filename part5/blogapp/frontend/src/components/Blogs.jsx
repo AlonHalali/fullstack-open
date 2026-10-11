@@ -1,16 +1,8 @@
-import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Toggleable from './Togglable'
+import { Link } from 'react-router-dom'
 
-const Blogs = ({
-  blogs,
-  name,
-  handleAddBlog,
-  blogFormRef,
-  handleUpdateBlog,
-  username,
-  handleDeleteBlog,
-}) => (
+const Blogs = ({ blogs, name, handleAddBlog, blogFormRef }) => (
   <div>
     <h1>Blogs</h1>
     {name && (
@@ -20,21 +12,19 @@ const Blogs = ({
         <Toggleable buttonLabel={'create new blog'} ref={blogFormRef}>
           <BlogForm handleAddBlog={handleAddBlog} />
         </Toggleable>{' '}
+        <br />
       </>
     )}
 
-    <br />
-    <div>
+    <ul>
       {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          handleUpdateBlog={handleUpdateBlog}
-          username={username}
-          handleDeleteBlog={handleDeleteBlog}
-        />
+        <li key={blog.id}>
+          <Link to={`/blogs/${blog.id}`}>
+            {blog.title} {blog.author}
+          </Link>
+        </li>
       ))}
-    </div>
+    </ul>
   </div>
 )
 
