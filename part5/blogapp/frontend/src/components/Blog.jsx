@@ -10,7 +10,7 @@ const Blog = ({ blog, handleUpdateBlog, username, handleDeleteBlog }) => {
   return (
     <div style={blogStyle}>
       <h2>
-        {blog.title} {blog.author}
+        {blog.author}: {blog.title}
       </h2>
 
       <a href={blog.url}>{blog.url}</a>
