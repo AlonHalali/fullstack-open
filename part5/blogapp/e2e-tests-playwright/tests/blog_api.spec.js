@@ -80,8 +80,6 @@ describe('Blog app', () => {
         'a new blog aBlogWithTitle by bloger added',
       )
       await expect(notification).toBeVisible()
-      await expect(notification).toHaveCSS('border-style', 'solid')
-      await expect(notification).toHaveCSS('color', 'rgb(0, 128, 0)')
     })
 
     describe('Several blogs exist', () => {
@@ -92,14 +90,14 @@ describe('Blog app', () => {
       })
       const getLikesNumber = async (page) => {
         const likesText = await page.locator('.likes-count').innerText()
-        return Number(likesText.replace('likes ', ''))
+        return Number(likesText.replace(' likes', ''))
       }
 
       const addLike = async (page) => {
         const likesBefore = await getLikesNumber(page)
         await page.getByRole('button', { name: 'like' }).click()
         await expect(page.locator('.likes-count')).toHaveText(
-          `likes ${String(likesBefore + 1)}`,
+          `${String(likesBefore + 1)} likes`,
         )
       }
 

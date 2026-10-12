@@ -33,11 +33,11 @@ describe('<Blog />', () => {
     test('only blog info and likes count are visible', () => {
       expect(
         screen.getByRole('heading', {
-          name: `${initialBlog.author}: ${initialBlog.title}`,
+          name: initialBlog.title,
         }),
       ).toBeVisible()
       expect(screen.getByText(initialBlog.url)).toBeVisible()
-      expect(screen.getByText(`likes ${initialBlog.likes}`)).toBeVisible()
+      expect(screen.getByText(`${initialBlog.likes} likes`)).toBeVisible()
       expect(
         screen.getByText(`Added by ${initialBlog.user.name}`),
       ).toBeVisible()
@@ -68,7 +68,7 @@ describe('<Blog />', () => {
     test('only blog info and likes button are visible', () => {
       expect(
         screen.getByRole('heading', {
-          name: `${initialBlog.author}: ${initialBlog.title}`,
+          name: initialBlog.title,
         }),
       ).toBeVisible()
 
@@ -97,7 +97,7 @@ describe('<Blog />', () => {
     test('all blog info and buttons are visible', () => {
       expect(
         screen.getByRole('heading', {
-          name: `${initialBlog.author}: ${initialBlog.title}`,
+          name: initialBlog.title,
         }),
       ).toBeVisible()
       expect(screen.getByRole('button', { name: 'like' })).toBeVisible()

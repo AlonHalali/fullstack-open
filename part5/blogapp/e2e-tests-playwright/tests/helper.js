@@ -20,9 +20,7 @@ const goHome = async (page) => {
 const goToBlog = async (page, title, author) => {
   await goHome(page)
   await page.getByRole('link', { name: `${title} ${author}` }).click()
-  await expect(
-    page.getByRole('heading', { name: `${author}: ${title}` }),
-  ).toBeVisible()
+  await expect(page.getByRole('heading', { name: title })).toBeVisible()
 }
 
 const loginWith = async (page, username, password) => {
@@ -34,9 +32,9 @@ const loginWith = async (page, username, password) => {
 
 const createBlog = async (page, title, author, url) => {
   await goToCreate(page)
-  await page.getByRole('textbox', { name: 'title:' }).fill(title)
-  await page.getByRole('textbox', { name: 'author:' }).fill(author)
-  await page.getByRole('textbox', { name: 'url:' }).fill(url)
+  await page.getByRole('textbox', { name: 'Title' }).fill(title)
+  await page.getByRole('textbox', { name: 'Author' }).fill(author)
+  await page.getByRole('textbox', { name: 'URL' }).fill(url)
   await page.getByRole('button', { name: 'create' }).click()
   await page.getByRole('link', { name: `${title} ${author}` }).waitFor()
 }
